@@ -109,8 +109,34 @@
     </div>
     <input type="text" id="searchBar" placeholder="Search products..." onkeyup="filterProducts()" />
     <div class="cart-icon" onclick="scrollToCart()">🛒<span id="cartCount">0</span></div>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Flag_of_the_Central_Reserve_Police_Force.svg" class="flag" alt="CRPF Flag">
-  </header>
+    </header>
+  <h2>Customer Details</h2>
+    <form id="customerForm" onsubmit="return false;" style="display: flex; flex-wrap: wrap; gap: 10px;">
+      <input type="text" id="name" placeholder="Name" required pattern="[A-Za-z ]+" title="Only letters and spaces" />
+      <select id="rank" required>
+        <option value="">Select Rank</option>
+        <option>GO's</option>
+        <option>INSP</option>
+        <option>SI</option>
+        <option>HC</option>
+        <option>CT</option>
+        <option>TRADESMAN</option>
+      </select>
+      <select id="coy" required>
+        <option value="">Select Coy</option>
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+        <option>D</option>
+        <option>E</option>
+        <option>F</option>
+        <option>G</option>
+        <option>HQ</option>
+      </select>
+      <input type="number" id="forceNumber" placeholder="Force Number" required pattern="\\d+" title="Numeric only" />
+      <input type="number" id="kpkbNumber" placeholder="KPKB Number" required pattern="\\d+" title="Numeric only" />
+    </form>
+  </div>
 
   <div id="product-list"></div>
 
