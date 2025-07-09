@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CRPF 186BN KPKB Canteen demand</title>
+  <title>CRPF 186BN KPKB Canteen Demand</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -11,44 +11,41 @@
       font-family: Arial, sans-serif;
       background-color: #123249;
       margin: 0;
-      padding: 0;
+      padding-top: 160px;
       color: #fff;
     }
     header {
       background-color: #5b0d6e;
       padding: 20px;
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      position: relative;
-      flex-wrap: wrap;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
     }
     header h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 24px;
     }
     .sub-heading {
-      font-size: 16px;
+      font-size: 14px;
       color: #ccc;
     }
-    .flag {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 60px;
-    }
-    #searchBar {
+    #searchBar, #categoryFilter {
       padding: 10px;
       border-radius: 5px;
       border: none;
-      width: 250px;
-      margin-top: 10px;
+      margin: 5px;
     }
     #product-list, #cart {
       padding: 20px;
     }
     .product {
-      background-color: rgba(141, 14, 14, 0.1);
+      background-color: rgba(255, 255, 255, 0.1);
       margin-bottom: 15px;
       padding: 10px;
       border-radius: 10px;
@@ -73,25 +70,23 @@
     button:hover {
       background-color: #e69500;
     }
-    a button {
-      background-color: #4CAF50;
-    }
-    a button:hover {
-      background-color: #3e8e41;
-    }
     .cart-icon {
-      position: absolute;
-      top: 20px;
-      right: 80px;
+      position: fixed;
+      top: 120px;
+      right: 20px;
       background: #fff;
       color: #000;
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 50px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 9999;
+      font-size: 20px;
+      cursor: pointer;
     }
     #invoiceContent {
       background-color: white;
@@ -99,44 +94,60 @@
       padding: 20px;
       display: none;
     }
+    #customerForm {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      padding: 0 20px;
+    }
+    input, select {
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
+
   <header>
     <div>
-      <h1>CRPF 186BN KPKB Canteen demand</h1>
-      <div class="sub-heading">Proudly Serving the Brave Soldiers of 186BN CRPF Jaipur Road Namsai Arunachal Pradesh</div>
+      <h1>CRPF 186BN KPKB Canteen Demand</h1>
+      <div class="sub-heading">Serving Brave Soldiers at Jaipur Road, Namsai, Arunachal Pradesh</div>
     </div>
-    <input type="text" id="searchBar" placeholder="Search products..." onkeyup="filterProducts()" />
-    <div class="cart-icon" onclick="scrollToCart()">🛒<span id="cartCount">0</span></div>
-    </header>
-  <h2>Customer Details</h2>
-    <form id="customerForm" onsubmit="return false;" style="display: flex; flex-wrap: wrap; gap: 10px;">
-      <input type="text" id="name" placeholder="Name" required pattern="[A-Za-z ]+" title="Only letters and spaces" />
-      <select id="rank" required>
-        <option value="">Select Rank</option>
-        <option>GO's</option>
-        <option>INSP</option>
-        <option>SI</option>
-        <option>HC</option>
-        <option>CT</option>
-        <option>TRADESMAN</option>
-      </select>
-      <select id="coy" required>
-        <option value="">Select Coy</option>
-        <option>A</option>
-        <option>B</option>
-        <option>C</option>
-        <option>D</option>
-        <option>E</option>
-        <option>F</option>
-        <option>G</option>
-        <option>HQ</option>
-      </select>
-      <input type="number" id="forceNumber" placeholder="Force Number" required pattern="\\d+" title="Numeric only" />
-      <input type="number" id="kpkbNumber" placeholder="KPKB Number" required pattern="\\d+" title="Numeric only" />
-    </form>
-  </div>
+    <div>
+      <input type="text" id="searchBar" placeholder="Search products..." onkeyup="displayProducts()" />
+    </div>
+  </header>
+
+  <div class="cart-icon" onclick="scrollToCart()">🛒<span id="cartCount">0</span></div>
+
+  <h2 style="padding: 0 20px;">Customer Details</h2>
+  <form id="customerForm" onsubmit="return false;">
+    <input type="text" id="name" placeholder="Name" required />
+    <select id="rank" required>
+      <option value="">Select Rank</option>
+      <option>GO's</option>
+      <option>INSP</option>
+      <option>SI</option>
+      <option>HC</option>
+      <option>CT</option>
+      <option>TRADESMAN</option>
+    </select>
+    <select id="coy" required>
+      <option value="">Select Coy</option>
+      <option>A</option>
+      <option>B</option>
+      <option>C</option>
+      <option>D</option>
+      <option>E</option>
+      <option>F</option>
+      <option>G</option>
+      <option>HQ</option>
+    </select>
+    <input type="number" id="forceNumber" placeholder="Force Number" required />
+    <input type="number" id="kpkbNumber" placeholder="KPKB Number" required />
+  </form>
 
   <div id="product-list"></div>
 
@@ -144,17 +155,19 @@
   <div id="cart"></div>
 
   <div style="text-align:center; padding:20px;">
-    <button onclick="downloadInvoiceAsPDF()" style="padding: 15px; font-size: 16px;">Download Invoice as PDF</button>
-    <button onclick="downloadInvoiceAsImage()" style="padding: 15px; font-size: 16px;">Download Invoice as JPG</button>
+    <button onclick="downloadInvoiceAsPDF()">Download Invoice as PDF</button>
+    <button onclick="downloadInvoiceAsImage()">Download Invoice as JPG</button>
   </div>
 
   <div id="invoiceContent"></div>
 
   <script>
     const products = [
-      { name: "TEST PRODUCT", qty: 10, price: 100, image: "https://via.placeholder.com/100" },
-{ name: "ADDY GYM VEST RN 95 100", qty: 3, price: 130.77, image: "https://via.placeholder.com/100x100?text=Gym+Vest" },
-      { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "https://via.placeholder.com/100x100?text=Vest" },
+      { name: "Tactical Boots", qty: 5, price: 1599, image: "https://via.placeholder.com/100" },
+      { name: "Energy Bars", qty: 10, price: 249, image: "https://via.placeholder.com/100" },
+      { name: "Power Bank", qty: 8, price: 1799, image: "https://via.placeholder.com/100" },
+      { name: "Backpack", qty: 6, price: 1299, image: "https://via.placeholder.com/100" },
+  { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "https://via.placeholder.com/100x100?text=Vest" },
       { name: "WALKIE TALKIE SET", qty: 3, price: 3599.00, image: "https://via.placeholder.com/100x100?text=Walkie" },
       { name: "BUNKER LOCK WITH KEYS", qty: 5, price: 249.00, image: "https://via.placeholder.com/100x100?text=Lock" },
       { name: "SHOE POLISH KIT", qty: 10, price: 179.00, image: "https://via.placeholder.com/100x100?text=Polish" },
@@ -186,23 +199,14 @@
       { name: "INSTANT COFFEE JAR", qty: 10, price: 349.00, image: "https://via.placeholder.com/100x100?text=Coffee" },
       { name: "ARMY PRINT T-SHIRT L", qty: 6, price: 499.00, image: "https://via.placeholder.com/100x100?text=T-Shirt" },
       { name: "STAINLESS CUTLERY SET", qty: 11, price: 299.00, image: "https://via.placeholder.com/100x100?text=Cutlery" },
-      { name: "MINI TOOL KIT", qty: 14, price: 599.00, image: "https://via.placeholder.com/100x100?text=Tool+Kit" },
-     { name: "CAMPING STOOL", qty: 4, price: 650.00, image: "https://via.placeholder.com/100x100?text=Stool" },
-     { name: "MAGNETIC COMPASS", qty: 9, price: 199.00, image: "https://via.placeholder.com/100x100?text=Compass" },
-      { name: "TRAVEL TOOTHBRUSH KIT", qty: 20, price: 120.00, image: "https://via.placeholder.com/100x100?text=Toothbrush" },
-     { name: "BISCUIT COMBAT PACK", qty: 15, price: 85.00, image: "https://via.placeholder.com/100x100?text=Biscuit" },
-     { name: "MULTI-SOCKET POWER STRIP", qty: 5, price: 699.00, image: "https://via.placeholder.com/100x100?text=Power+Strip" },
-     { name: "HAND SANITIZER 200ml", qty: 25, price: 99.00, image: "https://via.placeholder.com/100x100?text=Sanitizer" },
-     { name: "FACE MASK PACK", qty: 50, price: 150.00, image: "https://via.placeholder.com/100x100?text=Face+Mask" },
-     { name: "ARMY NOTEBOOK SET", qty: 18, price: 199.00, image: "https://via.placeholder.com/100x100?text=Notebook" },
-     { name: "TACTICAL ROPE 20M", qty: 6, price: 349.00, image: "https://via.placeholder.com/100x100?text=Rope" }
     ];
     let cart = [];
 
-    function displayProducts(list = products) {
+    function displayProducts() {
       const container = document.getElementById("product-list");
+      const query = document.getElementById("searchBar").value.toLowerCase();
       container.innerHTML = "";
-      list.forEach((product) => {
+      products.filter(p => p.name.toLowerCase().includes(query)).forEach(product => {
         const div = document.createElement("div");
         div.className = "product";
         div.innerHTML = `
@@ -210,10 +214,9 @@
           <div>
             <h3>${product.name}</h3>
             <p>Available: ${product.qty}</p>
-            <p>Price: ₹${product.price.toFixed(2)}</p>
+            <p>Price: ₹${product.price}</p>
             <button onclick="addToCartByName('${product.name}')">Add to Cart</button>
-          </div>
-        `;
+          </div>`;
         container.appendChild(div);
       });
     }
@@ -222,11 +225,8 @@
       const product = products.find(p => p.name === name);
       if (product.qty <= 0) return alert("Out of stock!");
       const existing = cart.find(item => item.name === name);
-      if (existing) {
-        existing.qty++;
-      } else {
-        cart.push({ ...product, qty: 1 });
-      }
+      if (existing) existing.qty++;
+      else cart.push({ ...product, qty: 1 });
       product.qty--;
       updateCartCount();
       displayProducts();
@@ -239,9 +239,7 @@
       if (!item) return;
       item.qty--;
       product.qty++;
-      if (item.qty === 0) {
-        cart = cart.filter(i => i.name !== name);
-      }
+      if (item.qty === 0) cart = cart.filter(i => i.name !== name);
       updateCartCount();
       displayProducts();
       displayCart();
@@ -263,14 +261,11 @@
       cartDiv.innerHTML = cart.map(item => {
         totalQty += item.qty;
         totalPrice += item.qty * item.price;
-        return `
-          <p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}
-          <button onclick="addToCartByName('${item.name}')">+</button>
-          <button onclick="removeFromCart('${item.name}')">-</button></p>
-        `;
+        return `<p>${item.name} x ${item.qty} = ₹${item.qty * item.price}
+        <button onclick="addToCartByName('${item.name}')">+</button>
+        <button onclick="removeFromCart('${item.name}')">-</button></p>`;
       }).join("");
-      cartDiv.innerHTML += `<h3>Total Quantity: ${totalQty}</h3>`;
-      cartDiv.innerHTML += `<h3>Total Amount: ₹${totalPrice.toFixed(2)}</h3>`;
+      cartDiv.innerHTML += `<h3>Total Quantity: ${totalQty}</h3><h3>Total: ₹${totalPrice}</h3>`;
     }
 
     function downloadInvoiceAsPDF() {
@@ -301,13 +296,17 @@
     }
 
     function generateInvoiceHTML() {
-      let content = `<h2>CRPF 186BN KPKB Canteen Invoice</h2>`;
-      content += `<p>Jaipur Road, Namsai, Arunachal Pradesh</p><hr />`;
+      const name = document.getElementById("name").value || "N/A";
+      const rank = document.getElementById("rank").value || "N/A";
+      const coy = document.getElementById("coy").value || "N/A";
+      const force = document.getElementById("forceNumber").value || "N/A";
+      const kpkb = document.getElementById("kpkbNumber").value || "N/A";
+      let content = `<h2>Invoice</h2><p>Name: ${name}</p><p>Rank: ${rank}</p><p>Company: ${coy}</p><p>Force No: ${force}, KPKB No: ${kpkb}</p><hr/>`;
       cart.forEach(item => {
-        content += `<p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}</p>`;
+        content += `<p>${item.name} x ${item.qty} = ₹${item.qty * item.price}</p>`;
       });
       const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-      content += `<h3>Total: ₹${total.toFixed(2)}</h3>`;
+      content += `<h3>Total: ₹${total}</h3>`;
       return content;
     }
 
