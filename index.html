@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CRPF 186BN KPKB Canteen demand </title>
+  <title>CRPF 186BN KPKB Canteen demand</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #123249; /* Dark military blue background */
+      background-color: #123249;
       margin: 0;
       padding: 0;
       color: #fff;
@@ -77,16 +79,36 @@
     a button:hover {
       background-color: #3e8e41;
     }
+    .cart-icon {
+      position: absolute;
+      top: 20px;
+      right: 80px;
+      background: #fff;
+      color: #000;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    #invoiceContent {
+      background-color: white;
+      color: black;
+      padding: 20px;
+      display: none;
+    }
   </style>
 </head>
 <body>
-
   <header>
     <div>
-      <h1>CRPF 186BN KPKB Canteen demand </h1>
-      <div class="sub-heading">Proudly Serving to the Brave soldiers of 186BN CRPF Jaipur Road Namsai Arunachal Pradesh</div>
+      <h1>CRPF 186BN KPKB Canteen demand</h1>
+      <div class="sub-heading">Proudly Serving the Brave Soldiers of 186BN CRPF Jaipur Road Namsai Arunachal Pradesh</div>
     </div>
     <input type="text" id="searchBar" placeholder="Search products..." onkeyup="filterProducts()" />
+    <div class="cart-icon" onclick="scrollToCart()">🛒<span id="cartCount">0</span></div>
     <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Flag_of_the_Central_Reserve_Police_Force.svg" class="flag" alt="CRPF Flag">
   </header>
 
@@ -96,14 +118,16 @@
   <div id="cart"></div>
 
   <div style="text-align:center; padding:20px;">
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSciMCT_h_1_0uCS0ZawqiN0Y8TXr-v2W94OIEi4gibkjc0pDg/viewform" target="_blank">
-      <button style="padding: 15px; font-size: 16px;">Submit Order via Google Form</button>
-    </a>
+    <button onclick="downloadInvoiceAsPDF()" style="padding: 15px; font-size: 16px;">Download Invoice as PDF</button>
+    <button onclick="downloadInvoiceAsImage()" style="padding: 15px; font-size: 16px;">Download Invoice as JPG</button>
   </div>
+
+  <div id="invoiceContent"></div>
 
   <script>
     const products = [
-      { name: "ADDY GYM VEST RN 95 100", qty: 3, price: 130.77, image: "https://via.placeholder.com/100x100?text=Gym+Vest" },
+      { name: "TEST PRODUCT", qty: 10, price: 100, image: "https://via.placeholder.com/100" }
+{ name: "ADDY GYM VEST RN 95 100", qty: 3, price: 130.77, image: "https://via.placeholder.com/100x100?text=Gym+Vest" },
       { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "https://via.placeholder.com/100x100?text=Vest" },
       { name: "WALKIE TALKIE SET", qty: 3, price: 3599.00, image: "https://via.placeholder.com/100x100?text=Walkie" },
       { name: "BUNKER LOCK WITH KEYS", qty: 5, price: 249.00, image: "https://via.placeholder.com/100x100?text=Lock" },
@@ -145,16 +169,8 @@
      { name: "HAND SANITIZER 200ml", qty: 25, price: 99.00, image: "https://via.placeholder.com/100x100?text=Sanitizer" },
      { name: "FACE MASK PACK", qty: 50, price: 150.00, image: "https://via.placeholder.com/100x100?text=Face+Mask" },
      { name: "ARMY NOTEBOOK SET", qty: 18, price: 199.00, image: "https://via.placeholder.com/100x100?text=Notebook" },
-     { name: "TACTICAL ROPE 20M", qty: 6, price: 349.00, image: "https://via.placeholder.com/100x100?text=Rope" },
-     { name: "LENS CLEANING SPRAY", qty: 9, price: 129.00, image: "https://via.placeholder.com/100x100?text=Lens+Spray" },
-     { name: "STEEL MUG SET", qty: 10, price: 299.00, image: "https://via.placeholder.com/100x100?text=Mug" },
-     { name: "ARMY DIARY WITH PEN", qty: 13, price: 349.00, image: "https://via.placeholder.com/100x100?text=Diary" },
-     { name: "ELECTRIC KETTLE 1.2L", qty: 4, price: 1099.00, image: "https://via.placeholder.com/100x100?text=Kettle" },
-     { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "https://via.placeholder.com/100x100?text=Vest" },
-      { name: "AMT CIRCURITY 77CM", qty: 2, price: 5639.6, image: "https://via.placeholder.com/100x100?text=Circuity" },
-      { name: "BABY CARE GIFT BASKET", qty: 1, price: 472.3, image: "https://via.placeholder.com/100x100?text=Baby+Basket" }
-   ];
-
+     { name: "TACTICAL ROPE 20M", qty: 6, price: 349.00, image: "https://via.placeholder.com/100x100?text=Rope" }
+    ];
     let cart = [];
 
     function displayProducts(list = products) {
@@ -178,13 +194,40 @@
 
     function addToCartByName(name) {
       const product = products.find(p => p.name === name);
-      const existing = cart.find(item => item.name === product.name);
+      if (product.qty <= 0) return alert("Out of stock!");
+      const existing = cart.find(item => item.name === name);
       if (existing) {
         existing.qty++;
       } else {
         cart.push({ ...product, qty: 1 });
       }
+      product.qty--;
+      updateCartCount();
+      displayProducts();
       displayCart();
+    }
+
+    function removeFromCart(name) {
+      const product = products.find(p => p.name === name);
+      const item = cart.find(i => i.name === name);
+      if (!item) return;
+      item.qty--;
+      product.qty++;
+      if (item.qty === 0) {
+        cart = cart.filter(i => i.name !== name);
+      }
+      updateCartCount();
+      displayProducts();
+      displayCart();
+    }
+
+    function updateCartCount() {
+      const count = cart.reduce((sum, item) => sum + item.qty, 0);
+      document.getElementById("cartCount").textContent = count;
+    }
+
+    function scrollToCart() {
+      document.getElementById("cart").scrollIntoView({ behavior: 'smooth' });
     }
 
     function displayCart() {
@@ -194,19 +237,56 @@
       cartDiv.innerHTML = cart.map(item => {
         totalQty += item.qty;
         totalPrice += item.qty * item.price;
-        return `<p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}</p>`;
+        return `
+          <p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}
+          <button onclick="addToCartByName('${item.name}')">+</button>
+          <button onclick="removeFromCart('${item.name}')">-</button></p>
+        `;
       }).join("");
       cartDiv.innerHTML += `<h3>Total Quantity: ${totalQty}</h3>`;
       cartDiv.innerHTML += `<h3>Total Amount: ₹${totalPrice.toFixed(2)}</h3>`;
     }
 
-    function filterProducts() {
-      const term = document.getElementById("searchBar").value.toLowerCase();
-      const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-      displayProducts(filtered);
+    function downloadInvoiceAsPDF() {
+      const invoice = document.getElementById("invoiceContent");
+      invoice.innerHTML = generateInvoiceHTML();
+      invoice.style.display = 'block';
+      html2canvas(invoice).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
+        pdf.save("invoice.pdf");
+        invoice.style.display = 'none';
+      });
+    }
+
+    function downloadInvoiceAsImage() {
+      const invoice = document.getElementById("invoiceContent");
+      invoice.innerHTML = generateInvoiceHTML();
+      invoice.style.display = 'block';
+      html2canvas(invoice).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "invoice.jpg";
+        link.href = canvas.toDataURL("image/jpeg");
+        link.click();
+        invoice.style.display = 'none';
+      });
+    }
+
+    function generateInvoiceHTML() {
+      let content = `<h2>CRPF 186BN KPKB Canteen Invoice</h2>`;
+      content += `<p>Jaipur Road, Namsai, Arunachal Pradesh</p><hr />`;
+      cart.forEach(item => {
+        content += `<p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}</p>`;
+      });
+      const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
+      content += `<h3>Total: ₹${total.toFixed(2)}</h3>`;
+      return content;
     }
 
     displayProducts();
+    displayCart();
   </script>
 </body>
 </html>
