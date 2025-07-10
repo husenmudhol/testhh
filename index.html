@@ -146,35 +146,38 @@
   <div class="cart-icon" onclick="scrollToCart()">🛒<span id="cartCount">0</span></div>
 
   <h2 style="padding: 0 20px;">Customer Details</h2>
-  <form id="customerForm" onsubmit="return false;">
-    <input type="text" id="name" placeholder="Name" required />
-    <select id="rank" required>
-      <option value="">Select Rank</option>
-      <option>GO's</option>
-      <option>INSP</option>
-      <option>SI</option>
-      <option>HC</option>
-      <option>CT</option>
-      <option>TRADESMAN</option>
-    </select>
-    <select id="coy" required>
-      <option value="">Select Coy</option>
-      <option>A</option>
-      <option>B</option>
-      <option>C</option>
-      <option>D</option>
-      <option>E</option>
-      <option>F</option>
-      <option>G</option>
-      <option>HQ</option>
-    </select>
-    <input type="number" id="forceNumber" placeholder="Force Number" required />
-    <input type="number" id="kpkbNumber" placeholder="KPKB Number" required />
-  </form>
 
   <div id="product-list"></div>
 
   <h2 style="text-align:center; color:#fff;">Your Cart</h2>
+<form id="customerForm" onsubmit="return false;">
+  <input type="text" id="name" placeholder="Name" required />
+
+  <select id="rank" required>
+    <option value="">Select Rank</option>
+    <option>GO's</option>
+    <option>INSP</option>
+    <option>SI</option>
+    <option>HC</option>
+    <option>CT</option>
+    <option>TRADESMAN</option>
+  </select>
+
+  <select id="coy" required>
+    <option value="">Select Coy</option>
+    <option>A</option>
+    <option>B</option>
+    <option>C</option>
+    <option>D</option>
+    <option>E</option>
+    <option>F</option>
+    <option>G</option>
+    <option>HQ</option>
+  </select>
+
+  <input type="number" id="forceNumber" placeholder="Force Number" required min="1" pattern="\d+" />
+  <input type="number" id="kpkbNumber" placeholder="KPKB Number" required min="1" pattern="\d+" />
+</form>
   <div id="cart"></div>
 
   <div style="text-align:center; padding:30px;">
@@ -292,10 +295,24 @@
     }
 
     function validateForm() {
-      const name = document.getElementById("name").value.trim();
-      const force = document.getElementById("forceNumber").value.trim();
-      const kpkb = document.getElementById("kpkbNumber").value.trim();
-      return name && force && kpkb;
+  const name = document.getElementById("name").value.trim();
+  const rank = document.getElementById("rank").value.trim();
+  const coy = document.getElementById("coy").value.trim();
+  const force = document.getElementById("forceNumber").value.trim();
+  const kpkb = document.getElementById("kpkbNumber").value.trim();
+
+  if (!name || !rank || !coy || !force || !kpkb) {
+    alert("⚠️ Please fill in all customer details.");
+    return false;
+  }
+
+  if (isNaN(force) || isNaN(kpkb) || parseInt(force) <= 0 || parseInt(kpkb) <= 0) {
+    alert("⚠️ Force Number and KPKB Number must be valid positive numbers.");
+    return false;
+  }
+
+  return true;
+
     }
 
     function downloadInvoiceAsPDF() {
