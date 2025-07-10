@@ -175,21 +175,18 @@
 </form>
   <h2 style="text-align:center; color:#fff;">Your Cart</h2>
   <div id="cart"></div>
-
   <div style="text-align:center; padding:30px;">
     <button onclick="if(validateForm()) downloadInvoiceAsPDF()">📄 Download Invoice as PDF</button>
     <button onclick="if(validateForm()) downloadInvoiceAsImage()">🖼️ Download Invoice as JPG</button>
   </div>
-
   <div id="invoiceContent"></div>
-
   <script>
     const products = [
       { name: "Tactical Boots", qty: 5, price: 1599, image: "https://via.placeholder.com/100" },
       { name: "Energy Bars", qty: 10, price: 249, image: "https://via.placeholder.com/100" },
       { name: "Power Bank", qty: 8, price: 1799, image: "https://via.placeholder.com/100" },
       { name: "Backpack", qty: 6, price: 1299, image: "https://via.placeholder.com/100" },
-  { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "https://via.placeholder.com/100x100?text=Vest" },
+      { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "https://via.placeholder.com/100x100?text=Vest" },
       { name: "WALKIE TALKIE SET", qty: 3, price: 3599.00, image: "https://via.placeholder.com/100x100?text=Walkie" },
       { name: "BUNKER LOCK WITH KEYS", qty: 5, price: 249.00, image: "https://via.placeholder.com/100x100?text=Lock" },
       { name: "SHOE POLISH KIT", qty: 10, price: 179.00, image: "https://via.placeholder.com/100x100?text=Polish" },
@@ -223,7 +220,6 @@
       { name: "STAINLESS CUTLERY SET", qty: 11, price: 299.00, image: "https://via.placeholder.com/100x100?text=Cutlery" }
     ];
     let cart = [];
-
     function displayProducts() {
       const container = document.getElementById("product-list");
       const query = document.getElementById("searchBar").value.toLowerCase();
@@ -242,7 +238,6 @@
         container.appendChild(div);
       });
     }
-
     function addToCartByName(name) {
       const product = products.find(p => p.name === name);
       if (product.qty <= 0) return alert("Out of stock!");
@@ -254,7 +249,6 @@
       displayProducts();
       displayCart();
     }
-
     function removeFromCart(name) {
       const product = products.find(p => p.name === name);
       const item = cart.find(i => i.name === name);
@@ -266,16 +260,13 @@
       displayProducts();
       displayCart();
     }
-
     function updateCartCount() {
       const count = cart.reduce((sum, item) => sum + item.qty, 0);
       document.getElementById("cartCount").textContent = count;
     }
-
     function scrollToCart() {
       document.getElementById("cart").scrollIntoView({ behavior: 'smooth' });
     }
-
     function displayCart() {
       const cartDiv = document.getElementById("cart");
       let totalQty = 0;
@@ -289,7 +280,6 @@
       }).join("");
       cartDiv.innerHTML += `<h3>Total Quantity: ${totalQty}</h3><h3>Total: ₹${totalPrice}</h3>`;
     }
-
     function validateForm() {
   const name = document.getElementById("name").value.trim();
   const rank = document.getElementById("rank").value.trim();
@@ -301,16 +291,12 @@
     alert("⚠️ Please fill in all customer details.");
     return false;
   }
-
   if (isNaN(force) || isNaN(kpkb) || parseInt(force) <= 0 || parseInt(kpkb) <= 0) {
     alert("⚠️ Force Number and KPKB Number must be valid positive numbers.");
     return false;
   }
-
   return true;
-
     }
-
     function downloadInvoiceAsPDF() {
       const invoice = document.getElementById("invoiceContent");
       invoice.innerHTML = generateInvoiceHTML();
@@ -324,7 +310,6 @@
         invoice.style.display = 'none';
       });
     }
-
     function downloadInvoiceAsImage() {
       const invoice = document.getElementById("invoiceContent");
       invoice.innerHTML = generateInvoiceHTML();
@@ -337,7 +322,6 @@
         invoice.style.display = 'none';
       });
     }
-
     function generateInvoiceHTML() {
       const name = document.getElementById("name").value || "N/A";
       const rank = document.getElementById("rank").value || "N/A";
@@ -348,7 +332,6 @@
       const dateStr = now.toLocaleDateString("en-IN");
       const timeStr = now.toLocaleTimeString("en-IN");
       const invoiceNumber = "INV-" + now.getTime();
-
       let content = `
         <div style="text-align:center;">
           <h1 style="margin-bottom: 5px;">CRPF 186BN KPKB CANTEEN DEMAND</h1>
@@ -367,17 +350,13 @@
         <p><strong>KPKB No:</strong> ${kpkb}</p>
         <hr/>
       `;
-
       cart.forEach(item => {
         content += `<p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}</p>`;
       });
-
       const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
       content += `<h3>Total: ₹${total.toFixed(2)}</h3>`;
-
       return content;
     }
-
     displayProducts();
     displayCart();
   </script>
