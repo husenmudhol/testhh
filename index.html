@@ -8,14 +8,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #123249;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #0a243b, #1b3b58);
       margin: 0;
       padding-top: 160px;
       color: #fff;
     }
     header {
-      background-color: #5b0d6e;
+      background: linear-gradient(90deg, #0f2027, #203a43, #2c5364);
       padding: 20px;
       display: flex;
       flex-wrap: wrap;
@@ -26,26 +26,31 @@
       left: 0;
       right: 0;
       z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
     }
     header h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 26px;
+      background: linear-gradient(to right, #f9d423, #ff4e50);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .sub-heading {
       font-size: 14px;
       color: #ccc;
     }
-    #searchBar, #categoryFilter {
+    #searchBar {
       padding: 10px;
       border-radius: 5px;
       border: none;
       margin: 5px;
+      font-size: 14px;
     }
     #product-list, #cart {
       padding: 20px;
     }
     .product {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.08);
       margin-bottom: 15px;
       padding: 10px;
       border-radius: 10px;
@@ -58,17 +63,19 @@
       width: 100px;
       height: auto;
       border-radius: 8px;
+      border: 2px solid #ccc;
     }
     button {
-      padding: 5px 10px;
-      margin-top: 5px;
+      padding: 12px 20px;
       background-color: #ffa500;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
     }
     button:hover {
-      background-color: #e69500;
+      background-color: #ff8c00;
     }
     .cart-icon {
       position: fixed;
@@ -91,7 +98,9 @@
     #invoiceContent {
       background-color: white;
       color: black;
-      padding: 20px;
+      padding: 30px;
+      margin: 20px;
+      border-radius: 10px;
       display: none;
     }
     #customerForm {
@@ -106,10 +115,24 @@
       border: none;
       font-size: 14px;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table, th, td {
+      border: 1px solid #000;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
   </style>
 </head>
 <body>
-
   <header>
     <div>
       <h1>CRPF 186BN KPKB Canteen Demand</h1>
@@ -154,19 +177,51 @@
   <h2 style="text-align:center; color:#fff;">Your Cart</h2>
   <div id="cart"></div>
 
-  <div style="text-align:center; padding:20px;">
-    <button onclick="downloadInvoiceAsPDF()">Download Invoice as PDF</button>
-    <button onclick="downloadInvoiceAsImage()">Download Invoice as JPG</button>
+  <div style="text-align:center; padding:30px;">
+    <button onclick="if(validateForm()) downloadInvoiceAsPDF()">📄 Download Invoice as PDF</button>
+    <button onclick="if(validateForm()) downloadInvoiceAsImage()">🖼️ Download Invoice as JPG</button>
   </div>
 
   <div id="invoiceContent"></div>
 
   <script>
     const products = [
-      { name: "T T Men Addy Designer Gym Vest", qty: 3, price: 130.77, image: "https://ttbazaar.com/cdn/shop/files/image_84d0fba3-4791-4f9b-a5e5-5a8e50ddcc91_720x.jpg?v=1709102553" },
+      { name: "Tactical Boots", qty: 5, price: 1599, image: "https://via.placeholder.com/100" },
       { name: "Energy Bars", qty: 10, price: 249, image: "https://via.placeholder.com/100" },
       { name: "Power Bank", qty: 8, price: 1799, image: "https://via.placeholder.com/100" },
-      { name: "Backpack", qty: 6, price: 1299, image: "https://via.placeholder.com/100" }
+      { name: "Backpack", qty: 6, price: 1299, image: "https://via.placeholder.com/100" },
+  { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "https://via.placeholder.com/100x100?text=Vest" },
+      { name: "WALKIE TALKIE SET", qty: 3, price: 3599.00, image: "https://via.placeholder.com/100x100?text=Walkie" },
+      { name: "BUNKER LOCK WITH KEYS", qty: 5, price: 249.00, image: "https://via.placeholder.com/100x100?text=Lock" },
+      { name: "SHOE POLISH KIT", qty: 10, price: 179.00, image: "https://via.placeholder.com/100x100?text=Polish" },
+      { name: "ARMY WATER BOTTLE 1L", qty: 5, price: 120.00, image: "https://via.placeholder.com/100x100?text=Water+Bottle" },
+      { name: "MULTIPURPOSE CAMP KNIFE", qty: 10, price: 349.99, image: "https://via.placeholder.com/100x100?text=Knife" },
+      { name: "TACTICAL BOOTS SIZE 9", qty: 4, price: 1499.50, image: "https://via.placeholder.com/100x100?text=Boots" },
+      { name: "MILITARY CAP GREEN", qty: 8, price: 199.00, image: "https://via.placeholder.com/100x100?text=Cap" },
+      { name: "FLASHLIGHT LED", qty: 12, price: 399.00, image: "https://via.placeholder.com/100x100?text=Flashlight" },
+      { name: "BACKPACK 40L ARMY", qty: 6, price: 1299.00, image: "https://via.placeholder.com/100x100?text=Backpack" },
+      { name: "EMERGENCY FIRST AID KIT", qty: 7, price: 699.00, image: "https://via.placeholder.com/100x100?text=First+Aid" },
+      { name: "BLACK COMBAT BELT", qty: 15, price: 299.00, image: "https://via.placeholder.com/100x100?text=Belt" },
+      { name: "INSULATED FOOD BOX", qty: 9, price: 850.00, image: "https://via.placeholder.com/100x100?text=Lunch+Box" },
+      { name: "SUNGLASSES POLARIZED", qty: 6, price: 999.00, image: "https://via.placeholder.com/100x100?text=Sunglasses" },
+      { name: "CANTEEN STAINLESS STEEL", qty: 10, price: 220.00, image: "https://via.placeholder.com/100x100?text=Canteen" },
+      { name: "JUNGLE SURVIVAL KIT", qty: 5, price: 999.00, image: "https://via.placeholder.com/100x100?text=Survival+Kit" },
+      { name: "SLEEPING BAG WINTER", qty: 3, price: 2499.00, image: "https://via.placeholder.com/100x100?text=Sleeping+Bag" },
+      { name: "DIGITAL WRIST WATCH", qty: 8, price: 1499.00, image: "https://via.placeholder.com/100x100?text=Watch" },
+      { name: "RAINCOAT MILITARY GREEN", qty: 4, price: 899.00, image: "https://via.placeholder.com/100x100?text=Raincoat" },
+      { name: "TORCH WATERPROOF", qty: 6, price: 599.00, image: "https://via.placeholder.com/100x100?text=Torch" },
+      { name: "POWER BANK 20000mAh", qty: 10, price: 1799.00, image: "https://via.placeholder.com/100x100?text=Power+Bank" },
+      { name: "INSOLE COMFORT PAD", qty: 20, price: 149.00, image: "https://via.placeholder.com/100x100?text=Insole" },
+      { name: "GLOVES TACTICAL BLACK", qty: 7, price: 450.00, image: "https://via.placeholder.com/100x100?text=Gloves" },
+      { name: "MOSQUITO NET FOLDABLE", qty: 6, price: 799.00, image: "https://via.placeholder.com/100x100?text=Mosquito+Net" },
+      { name: "COLD CREAM WINTERCARE", qty: 15, price: 99.00, image: "https://via.placeholder.com/100x100?text=Cold+Cream" },
+      { name: "SUNSCREEN SPF50", qty: 12, price: 349.00, image: "https://via.placeholder.com/100x100?text=Sunscreen" },
+      { name: "SHAVING KIT TRAVEL", qty: 8, price: 499.00, image: "https://via.placeholder.com/100x100?text=Shaving+Kit" },
+      { name: "AROMA BATH SOAP", qty: 25, price: 49.00, image: "https://via.placeholder.com/100x100?text=Soap" },
+      { name: "ENERGY BARS PACK", qty: 30, price: 249.00, image: "https://via.placeholder.com/100x100?text=Energy+Bar" },
+      { name: "INSTANT COFFEE JAR", qty: 10, price: 349.00, image: "https://via.placeholder.com/100x100?text=Coffee" },
+      { name: "ARMY PRINT T-SHIRT L", qty: 6, price: 499.00, image: "https://via.placeholder.com/100x100?text=T-Shirt" },
+      { name: "STAINLESS CUTLERY SET", qty: 11, price: 299.00, image: "https://via.placeholder.com/100x100?text=Cutlery" }
     ];
     let cart = [];
 
@@ -236,6 +291,13 @@
       cartDiv.innerHTML += `<h3>Total Quantity: ${totalQty}</h3><h3>Total: ₹${totalPrice}</h3>`;
     }
 
+    function validateForm() {
+      const name = document.getElementById("name").value.trim();
+      const force = document.getElementById("forceNumber").value.trim();
+      const kpkb = document.getElementById("kpkbNumber").value.trim();
+      return name && force && kpkb;
+    }
+
     function downloadInvoiceAsPDF() {
       const invoice = document.getElementById("invoiceContent");
       invoice.innerHTML = generateInvoiceHTML();
@@ -269,13 +331,37 @@
       const coy = document.getElementById("coy").value || "N/A";
       const force = document.getElementById("forceNumber").value || "N/A";
       const kpkb = document.getElementById("kpkbNumber").value || "N/A";
-      let content = `<h2>CRPF 186BN KPKB Canteen Invoice</h2><p>Location: Jaipur Road, Namsai, Arunachal Pradesh</p>`;
-      content += `<p><strong>Name:</strong> ${name}</p><p><strong>Rank:</strong> ${rank}</p><p><strong>Company:</strong> ${coy}</p><p><strong>Force No:</strong> ${force}, <strong>KPKB No:</strong> ${kpkb}</p><hr/>`;
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("en-IN");
+      const timeStr = now.toLocaleTimeString("en-IN");
+      const invoiceNumber = "INV-" + now.getTime();
+
+      let content = `
+        <div style="text-align:center;">
+          <h1 style="margin-bottom: 5px;">CRPF 186BN KPKB CANTEEN DEMAND</h1>
+          <p style="margin-top: 0;">Jaipur Road, Namsai, Arunachal Pradesh</p>
+          <hr/>
+        </div>
+        <h2 style="text-align:center;">INVOICE</h2>
+        <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+        <p><strong>Date:</strong> ${dateStr}</p>
+        <p><strong>Time:</strong> ${timeStr}</p>
+        <hr/>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Rank:</strong> ${rank}</p>
+        <p><strong>Company:</strong> ${coy}</p>
+        <p><strong>Force No:</strong> ${force}</p>
+        <p><strong>KPKB No:</strong> ${kpkb}</p>
+        <hr/>
+      `;
+
       cart.forEach(item => {
-        content += `<p>${item.name} x ${item.qty} = ₹${item.qty * item.price}</p>`;
+        content += `<p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}</p>`;
       });
+
       const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-      content += `<h3>Total: ₹${total}</h3>`;
+      content += `<h3>Total: ₹${total.toFixed(2)}</h3>`;
+
       return content;
     }
 
