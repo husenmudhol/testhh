@@ -46,12 +46,27 @@
       margin: 5px;
       font-size: 14px;
     }
-    #product-list, #cart {
-      padding: 20px;
+    .cart-icon {
+      position: fixed;
+      top: 120px;
+      right: 20px;
+      background: #fff;
+      color: #000;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 9999;
+      font-size: 20px;
+      cursor: pointer;
     }
     .product {
       background-color: rgba(255, 255, 255, 0.08);
-      margin-bottom: 15px;
+      margin: 15px 20px;
       padding: 10px;
       border-radius: 10px;
       display: flex;
@@ -77,23 +92,20 @@
     button:hover {
       background-color: #ff8c00;
     }
-    .cart-icon {
-      position: fixed;
-      top: 120px;
-      right: 20px;
-      background: #fff;
-      color: #000;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      z-index: 9999;
-      font-size: 20px;
-      cursor: pointer;
+    #customerForm {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      padding: 20px;
+    }
+    input, select {
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 14px;
+    }
+    #cart {
+      padding: 20px;
     }
     #invoiceContent {
       background-color: white;
@@ -103,40 +115,13 @@
       border-radius: 10px;
       display: none;
     }
-    #customerForm {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-      padding: 0 20px;
-    }
-    input, select {
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      font-size: 14px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    table, th, td {
-      border: 1px solid #000;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
   </style>
 </head>
 <body>
   <header>
     <div>
       <h1>CRPF 186BN KPKB Canteen Demand</h1>
-      <div class="sub-heading">Serving Brave Soldiers at Jaipur Road, Namsai, Arunachal Pradesh</div>
+      <div class="sub-heading">Jaipur Road, Namsai, Arunachal Pradesh</div>
     </div>
     <div>
       <input type="text" id="searchBar" placeholder="Search products..." onkeyup="displayProducts()" />
@@ -144,82 +129,45 @@
   </header>
 
   <div class="cart-icon" onclick="scrollToCart()">🛒<span id="cartCount">0</span></div>
-
   <div id="product-list"></div>
-<form id="customerForm" onsubmit="return false;">
-  <h2 style="padding: 0 20px;">186BN CRPF PERSONNELS Details</h2>
-    <input type="text" id="name" placeholder="Name" required />
-  <select id="rank" required>
-    <option value="">Select Rank</option>
-    <option>GO's</option>
-    <option>INSP</option>
-    <option>SI</option>
-    <option>HC</option>
-    <option>CT</option>
-    <option>TRADESMAN</option>
-  </select>
 
-  <select id="coy" required>
-    <option value="">Select Coy</option>
-    <option>A</option>
-    <option>B</option>
-    <option>C</option>
-    <option>D</option>
-    <option>E</option>
-    <option>F</option>
-    <option>G</option>
-    <option>HQ</option>
-  </select>
-  <input type="text" id="force Number" placeholder="force Number" required />
-  <input type="text" id="KPKB Number" placeholder="KPKB Number" required />
-</form>
-  <h2 style="text-align:center; color:#fff;">Your Cart</h2>
+  <form id="customerForm" onsubmit="return false;">
+    <h2>186BN CRPF PERSONNEL Details</h2>
+    <input type="text" id="name" placeholder="Name" required />
+    <select id="rank" required>
+      <option value="">Select Rank</option>
+      <option>GO's</option><option>INSP</option><option>SI</option>
+      <option>HC</option><option>CT</option><option>TRADESMAN</option>
+    </select>
+    <select id="coy" required>
+      <option value="">Select Coy</option>
+      <option>A</option><option>B</option><option>C</option><option>D</option>
+      <option>E</option><option>F</option><option>G</option><option>HQ</option>
+    </select>
+    <input type="number" id="forceNumber" placeholder="Force Number" required min="1" />
+    <input type="number" id="kpkbNumber" placeholder="KPKB Number" required min="1" />
+  </form>
+
+  <h2 style="text-align:center;">Your Cart</h2>
   <div id="cart"></div>
+
   <div style="text-align:center; padding:30px;">
     <button onclick="if(validateForm()) downloadInvoiceAsPDF()">📄 Download Invoice as PDF</button>
     <button onclick="if(validateForm()) downloadInvoiceAsImage()">🖼️ Download Invoice as JPG</button>
   </div>
   <div id="invoiceContent"></div>
+
   <script>
     const products = [
-      { name: "Tactical Boots", qty: 5, price: 1599, image: "https://www.shutterstock.com/image-photo/hi-cut-safety-tactical-boot-484083958" },
-      { name: "Energy Bars", qty: 10, price: 249, image: "https://via.placeholder.com/100" },
-      { name: "Power Bank", qty: 8, price: 1799, image: "https://via.placeholder.com/100" },
-      { name: "Backpack", qty: 6, price: 1299, image: "https://via.placeholder.com/100" },
-      { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "https://via.placeholder.com/100x100?text=Vest" },
-      { name: "WALKIE TALKIE SET", qty: 3, price: 3599.00, image: "https://via.placeholder.com/100x100?text=Walkie" },
-      { name: "BUNKER LOCK WITH KEYS", qty: 5, price: 249.00, image: "https://via.placeholder.com/100x100?text=Lock" },
-      { name: "SHOE POLISH KIT", qty: 10, price: 179.00, image: "https://via.placeholder.com/100x100?text=Polish" },
-      { name: "ARMY WATER BOTTLE 1L", qty: 5, price: 120.00, image: "https://via.placeholder.com/100x100?text=Water+Bottle" },
-      { name: "MULTIPURPOSE CAMP KNIFE", qty: 10, price: 349.99, image: "https://via.placeholder.com/100x100?text=Knife" },
-      { name: "TACTICAL BOOTS SIZE 9", qty: 4, price: 1499.50, image: "https://via.placeholder.com/100x100?text=Boots" },
-      { name: "MILITARY CAP GREEN", qty: 8, price: 199.00, image: "https://via.placeholder.com/100x100?text=Cap" },
-      { name: "FLASHLIGHT LED", qty: 12, price: 399.00, image: "https://via.placeholder.com/100x100?text=Flashlight" },
-      { name: "BACKPACK 40L ARMY", qty: 6, price: 1299.00, image: "https://via.placeholder.com/100x100?text=Backpack" },
-      { name: "EMERGENCY FIRST AID KIT", qty: 7, price: 699.00, image: "https://via.placeholder.com/100x100?text=First+Aid" },
-      { name: "BLACK COMBAT BELT", qty: 15, price: 299.00, image: "https://via.placeholder.com/100x100?text=Belt" },
-      { name: "INSULATED FOOD BOX", qty: 9, price: 850.00, image: "https://via.placeholder.com/100x100?text=Lunch+Box" },
-      { name: "SUNGLASSES POLARIZED", qty: 6, price: 999.00, image: "https://via.placeholder.com/100x100?text=Sunglasses" },
-      { name: "CANTEEN STAINLESS STEEL", qty: 10, price: 220.00, image: "https://via.placeholder.com/100x100?text=Canteen" },
-      { name: "JUNGLE SURVIVAL KIT", qty: 5, price: 999.00, image: "https://via.placeholder.com/100x100?text=Survival+Kit" },
-      { name: "SLEEPING BAG WINTER", qty: 3, price: 2499.00, image: "https://via.placeholder.com/100x100?text=Sleeping+Bag" },
-      { name: "DIGITAL WRIST WATCH", qty: 8, price: 1499.00, image: "https://via.placeholder.com/100x100?text=Watch" },
-      { name: "RAINCOAT MILITARY GREEN", qty: 4, price: 899.00, image: "https://via.placeholder.com/100x100?text=Raincoat" },
-      { name: "TORCH WATERPROOF", qty: 6, price: 599.00, image: "https://via.placeholder.com/100x100?text=Torch" },
-      { name: "POWER BANK 20000mAh", qty: 10, price: 1799.00, image: "https://via.placeholder.com/100x100?text=Power+Bank" },
-      { name: "INSOLE COMFORT PAD", qty: 20, price: 149.00, image: "https://via.placeholder.com/100x100?text=Insole" },
-      { name: "GLOVES TACTICAL BLACK", qty: 7, price: 450.00, image: "https://via.placeholder.com/100x100?text=Gloves" },
-      { name: "MOSQUITO NET FOLDABLE", qty: 6, price: 799.00, image: "https://via.placeholder.com/100x100?text=Mosquito+Net" },
-      { name: "COLD CREAM WINTERCARE", qty: 15, price: 99.00, image: "https://via.placeholder.com/100x100?text=Cold+Cream" },
-      { name: "SUNSCREEN SPF50", qty: 12, price: 349.00, image: "https://via.placeholder.com/100x100?text=Sunscreen" },
-      { name: "SHAVING KIT TRAVEL", qty: 8, price: 499.00, image: "https://via.placeholder.com/100x100?text=Shaving+Kit" },
-      { name: "AROMA BATH SOAP", qty: 25, price: 49.00, image: "https://via.placeholder.com/100x100?text=Soap" },
-      { name: "ENERGY BARS PACK", qty: 30, price: 249.00, image: "https://via.placeholder.com/100x100?text=Energy+Bar" },
-      { name: "INSTANT COFFEE JAR", qty: 10, price: 349.00, image: "https://via.placeholder.com/100x100?text=Coffee" },
-      { name: "ARMY PRINT T-SHIRT L", qty: 6, price: 499.00, image: "https://via.placeholder.com/100x100?text=T-Shirt" },
-      { name: "STAINLESS CUTLERY SET", qty: 11, price: 299.00, image: "https://via.placeholder.com/100x100?text=Cutlery" }
+      { name: "Tactical Boots", qty: 5, price: 1599, image: "images/tactical-boots.jpg" },
+      { name: "Energy Bars", qty: 10, price: 249, image: "images/energy-bars.jpg" },
+      { name: "Power Bank", qty: 8, price: 1799, image: "images/power-bank.jpg" },
+      { name: "Backpack", qty: 6, price: 1299, image: "images/backpack.jpg" },
+      { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "images/tactical-vest.jpg" },
+      { name: "WALKIE TALKIE SET", qty: 3, price: 3599.00, image: "images/walkie.jpg" }
     ];
     let cart = [];
+
     function displayProducts() {
       const container = document.getElementById("product-list");
       const query = document.getElementById("searchBar").value.toLowerCase();
@@ -228,7 +176,7 @@
         const div = document.createElement("div");
         div.className = "product";
         div.innerHTML = `
-          <img src="${product.image}" alt="${product.name}" />
+          <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/100?text=Image+Missing'" />
           <div>
             <h3>${product.name}</h3>
             <p>Available: ${product.qty}</p>
@@ -238,6 +186,7 @@
         container.appendChild(div);
       });
     }
+
     function addToCartByName(name) {
       const product = products.find(p => p.name === name);
       if (product.qty <= 0) return alert("Out of stock!");
@@ -249,6 +198,7 @@
       displayProducts();
       displayCart();
     }
+
     function removeFromCart(name) {
       const product = products.find(p => p.name === name);
       const item = cart.find(i => i.name === name);
@@ -260,13 +210,16 @@
       displayProducts();
       displayCart();
     }
+
     function updateCartCount() {
       const count = cart.reduce((sum, item) => sum + item.qty, 0);
       document.getElementById("cartCount").textContent = count;
     }
+
     function scrollToCart() {
       document.getElementById("cart").scrollIntoView({ behavior: 'smooth' });
     }
+
     function displayCart() {
       const cartDiv = document.getElementById("cart");
       let totalQty = 0;
@@ -275,31 +228,30 @@
         totalQty += item.qty;
         totalPrice += item.qty * item.price;
         return `<p>${item.name} x ${item.qty} = ₹${item.qty * item.price}
-        <button onclick="addToCartByName('${item.name}')">+</button>
-        <button onclick="removeFromCart('${item.name}')">-</button></p>`;
+          <button onclick="addToCartByName('${item.name}')">+</button>
+          <button onclick="removeFromCart('${item.name}')">-</button></p>`;
       }).join("");
       cartDiv.innerHTML += `<h3>Total Quantity: ${totalQty}</h3><h3>Total: ₹${totalPrice}</h3>`;
     }
-    function validateForm() {
-  const name = document.getElementById("name").value.trim();
-  const rank = document.getElementById("rank").value.trim();
-  const coy = document.getElementById("coy").value.trim();
-  const force = document.getElementById("forceNumber").value.trim();
-  const kpkb = document.getElementById("kpkbNumber").value.trim();
 
-  if (!name || !rank || !coy || !force || !kpkb) {
-    alert("⚠️ Please fill in all customer details.");
-    return false;
-  }
-  if (isNaN(force) || isNaN(kpkb) || parseInt(force) <= 0 || parseInt(kpkb) <= 0) {
-    alert("⚠️ Force Number and KPKB Number must be valid positive numbers.");
-    return false;
-  }
-  return true;
+    function validateForm() {
+      const name = document.getElementById("name").value.trim();
+      const rank = document.getElementById("rank").value.trim();
+      const coy = document.getElementById("coy").value.trim();
+      const force = document.getElementById("forceNumber").value.trim();
+      const kpkb = document.getElementById("kpkbNumber").value.trim();
+      if (!name || !rank || !coy || !force || !kpkb) {
+        alert("⚠️ Please fill in all customer details.");
+        return false;
+      }
+      if (isNaN(force) || isNaN(kpkb) || parseInt(force) <= 0 || parseInt(kpkb) <= 0) {
+        alert("⚠️ Force Number and KPKB Number must be valid positive numbers.");
+        return false;
+      }
+      return true;
     }
-ChatGPT
-You said:
-function downloadInvoiceAsPDF() {
+
+    function downloadInvoiceAsPDF() {
       const invoice = document.getElementById("invoiceContent");
       invoice.innerHTML = generateInvoiceHTML();
       invoice.style.display = 'block';
@@ -312,6 +264,7 @@ function downloadInvoiceAsPDF() {
         invoice.style.display = 'none';
       });
     }
+
     function downloadInvoiceAsImage() {
       const invoice = document.getElementById("invoiceContent");
       invoice.innerHTML = generateInvoiceHTML();
@@ -324,6 +277,7 @@ function downloadInvoiceAsPDF() {
         invoice.style.display = 'none';
       });
     }
+
     function generateInvoiceHTML() {
       const name = document.getElementById("name").value || "N/A";
       const rank = document.getElementById("rank").value || "N/A";
@@ -334,42 +288,29 @@ function downloadInvoiceAsPDF() {
       const dateStr = now.toLocaleDateString("en-IN");
       const timeStr = now.toLocaleTimeString("en-IN");
       const invoiceNumber = "INV-" + now.getTime();
-      let content = 
+      let content = `
         <div style="text-align:center;">
-          <h1 style="margin-bottom: 5px;">CRPF 186BN KPKB CANTEEN DEMAND</h1>
-          <p style="margin-top: 0;">Jaipur Road, Namsai, Arunachal Pradesh</p>
-          <hr/>
+          <h1>CRPF 186BN KPKB CANTEEN DEMAND</h1>
+          <p>Jaipur Road, Namsai, Arunachal Pradesh</p><hr/>
         </div>
         <h2 style="text-align:center;">INVOICE</h2>
         <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
         <p><strong>Date:</strong> ${dateStr}</p>
-        <p><strong>Time:</strong> ${timeStr}</p>
-        <hr/>
+        <p><strong>Time:</strong> ${timeStr}</p><hr/>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Rank:</strong> ${rank}</p>
         <p><strong>Company:</strong> ${coy}</p>
         <p><strong>Force No:</strong> ${force}</p>
-        <p><strong>KPKB No:</strong> ${kpkb}</p>
-        <hr/>
-      ;
+        <p><strong>KPKB No:</strong> ${kpkb}</p><hr/>
+      `;
       cart.forEach(item => {
-        content += <p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}</p>;
+        content += `<p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}</p>`;
       });
       const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-      content += <h3>Total: ₹${total.toFixed(2)}</h3>;
+      content += `<h3>Total: ₹${total.toFixed(2)}</h3>`;
       return content;
     }
 
-  <h2>CRPF Canteen Form</h2>
-  <label>Name: <input id="name" /></label><br/>
-  <label>Rank: <input id="rank" /></label><br/>
-  <label>Company: <input id="coy" /></label><br/>
-  <label>Force No: <input id="forceNumber" /></label><br/>
-  <label>KPKB No: <input id="kpkbNumber" /></label><br/><br/>
-
-  <button onclick="downloadInvoiceAsPDF()">Download Invoice as PDF</button>
-  <button onclick="downloadInvoiceAsImage()">Download Invoice as JPG</button>
-    }
     displayProducts();
     displayCart();
   </script>
