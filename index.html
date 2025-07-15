@@ -359,31 +359,6 @@ function downloadInvoiceAsPDF() {
       content += <h3>Total: ₹${total.toFixed(2)}</h3>;
       return content;
     }
-ChatGPT said:
-This code looks great overall — it defines two functions to download the invoice as PDF or JPG image, and a third function to generate invoice HTML content dynamically. Here's a quick summary and a few enhancements you might consider:
-
-✅ What It Does Well
-Dynamic Invoice Content: Uses form values (name, rank, etc.) and cart items to generate the invoice.
-
-PDF and JPG Support: Lets users download the invoice as either a PDF or a JPG image using html2canvas and jsPDF.
-
-Auto-hide: The invoice content is only temporarily made visible (invoice.style.display = 'block';) for screenshot generation and hidden again (display: 'none').
-
-⚙️ Suggested Enhancements
-✅ Add a Wrapper <div> ID (Optional But Useful)
-Ensure that #invoiceContent exists in your HTML:
-
-<div id="invoiceContent" style="display:none;"></div>
-✅ Style the Invoice for Better Print Quality (Optional)
-Add borders or spacing inside generateInvoiceHTML():
-
-<div style="padding: 20px; border: 1px solid #000; font-family: sans-serif;">
-  ...
-</div>
-✅ Validate Form Inputs (Optional)
-If user leaves fields blank, you already fallback to "N/A" — that's good.
-
-✅ Add Product He
 
   <h2>CRPF Canteen Form</h2>
   <label>Name: <input id="name" /></label><br/>
