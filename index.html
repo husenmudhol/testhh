@@ -127,10 +127,8 @@
       <input type="text" id="searchBar" placeholder="Search products..." onkeyup="displayProducts()" />
     </div>
   </header>
-
   <div class="cart-icon" onclick="scrollToCart()">🛒<span id="cartCount">0</span></div>
   <div id="product-list"></div>
-
   <form id="customerForm" onsubmit="return false;">
     <h2>186BN CRPF PERSONNEL Details</h2>
     <input type="text" id="name" placeholder="Name" required />
@@ -147,91 +145,81 @@
     <input type="number" id="forceNumber" placeholder="Force Number" required min="1" />
     <input type="number" id="kpkbNumber" placeholder="KPKB Number" required min="1" />
   </form>
-
   <h2 style="text-align:center;">Your Cart</h2>
   <div id="cart"></div>
-
   <div style="text-align:center; padding:30px;">
     <button onclick="if(validateForm()) downloadInvoiceAsPDF()">📄 Download Invoice as PDF</button>
     <button onclick="if(validateForm()) downloadInvoiceAsImage()">🖼️ Download Invoice as JPG</button>
   </div>
   <div id="invoiceContent"></div>
-
   <script>
     const products = [
-      { name: "Tactical Boots", qty: 5, price: 1599, image: "images/tactical-boots.jpg" },
-      { name: "Energy Bars", qty: 10, price: 249, image: "images/energy-bars.jpg" },
-      { name: "Power Bank", qty: 8, price: 1799, image: "images/power-bank.jpg" },
-      { name: "Backpack", qty: 6, price: 1299, image: "images/backpack.jpg" },
-      { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "images/tactical-vest.jpg" },
-      { name: "WALKIE TALKIE SET", qty: 3, price: 3599.00, image: "images/walkie.jpg" }
+      { name: "Tactical Boots", qty: 5, price: 1599, image: "https://m.media-amazon.com/images/I/71eHgjzjTRL._AC_UL1500_.jpg" },
+      { name: "Energy Bars", qty: 10, price: 249, image: "https://m.media-amazon.com/images/I/61O9tWR6D9L._SL1500_.jpg" },
+      { name: "Power Bank", qty: 8, price: 1799, image: "https://m.media-amazon.com/images/I/51ugD2k6y5L._SL1080_.jpg" },
+      { name: "Backpack", qty: 6, price: 1299, image: "https://m.media-amazon.com/images/I/81q2i4KH+2L._SL1500_.jpg" },
+      { name: "TACTICAL VEST MULTIPOCKET", qty: 2, price: 1999.00, image: "https://m.media-amazon.com/images/I/81l0kBGkXNL._SL1500_.jpg" },
+      { name: "WALKIE TALKIE SET", qty: 3, price: 3599.00, image: "https://m.media-amazon.com/images/I/51WrWRMu3kL._SL1000_.jpg" },
+      { name: "BUNKER LOCK WITH KEYS", qty: 5, price: 249.00, image: "https://m.media-amazon.com/images/I/51cHo6VrGjL._SL1500_.jpg" },
+      { name: "SHOE POLISH KIT", qty: 10, price: 179.00, image: "https://m.media-amazon.com/images/I/61+gyP65YzL._SL1500_.jpg" }
     ];
+
     let cart = [];
 
     function displayProducts() {
-      const container = document.getElementById("product-list");
-      const query = document.getElementById("searchBar").value.toLowerCase();
-      container.innerHTML = "";
-      products.filter(p => p.name.toLowerCase().includes(query)).forEach(product => {
+      const list = document.getElementById("product-list");
+      const search = document.getElementById("searchBar").value.toLowerCase();
+      list.innerHTML = "";
+      products.filter(p => p.name.toLowerCase().includes(search)).forEach(p => {
         const div = document.createElement("div");
         div.className = "product";
         div.innerHTML = `
-          <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/100?text=Image+Missing'" />
+          <img src="${p.image}" alt="${p.name}" />
           <div>
-            <h3>${product.name}</h3>
-            <p>Available: ${product.qty}</p>
-            <p>Price: ₹${product.price}</p>
-            <button onclick="addToCartByName('${product.name}')">Add to Cart</button>
+            <h3>${p.name}</h3>
+            <p>Available: ${p.qty}</p>
+            <p>Price: ₹${p.price}</p>
+            <button onclick="addToCart('${p.name}')">Add to Cart</button>
           </div>`;
-        container.appendChild(div);
+        list.appendChild(div);
       });
     }
 
-    function addToCartByName(name) {
-      const product = products.find(p => p.name === name);
-      if (product.qty <= 0) return alert("Out of stock!");
-      const existing = cart.find(item => item.name === name);
-      if (existing) existing.qty++;
-      else cart.push({ ...product, qty: 1 });
-      product.qty--;
-      updateCartCount();
-      displayProducts();
-      displayCart();
+    function addToCart(name) {
+      const item = products.find(p => p.name === name);
+      if (!item || item.qty <= 0) return alert("Out of Stock");
+      const found = cart.find(c => c.name === name);
+      if (found) found.qty++;
+      else cart.push({ ...item, qty: 1 });
+      item.qty--;
+      updateCart();
     }
 
     function removeFromCart(name) {
+      const index = cart.findIndex(c => c.name === name);
+      if (index === -1) return;
       const product = products.find(p => p.name === name);
-      const item = cart.find(i => i.name === name);
-      if (!item) return;
-      item.qty--;
+      cart[index].qty--;
       product.qty++;
-      if (item.qty === 0) cart = cart.filter(i => i.name !== name);
-      updateCartCount();
-      displayProducts();
-      displayCart();
+      if (cart[index].qty === 0) cart.splice(index, 1);
+      updateCart();
     }
 
-    function updateCartCount() {
-      const count = cart.reduce((sum, item) => sum + item.qty, 0);
-      document.getElementById("cartCount").textContent = count;
+    function updateCart() {
+      const div = document.getElementById("cart");
+      const count = document.getElementById("cartCount");
+      div.innerHTML = "";
+      let total = 0;
+      cart.forEach(c => {
+        total += c.qty * c.price;
+        div.innerHTML += `<p>${c.name} x ${c.qty} = ₹${c.qty * c.price} <button onclick="addToCart('${c.name}')">+</button> <button onclick="removeFromCart('${c.name}')">-</button></p>`;
+      });
+      div.innerHTML += `<h3>Total: ₹${total}</h3>`;
+      count.textContent = cart.reduce((a, b) => a + b.qty, 0);
     }
 
     function scrollToCart() {
       document.getElementById("cart").scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function displayCart() {
-      const cartDiv = document.getElementById("cart");
-      let totalQty = 0;
-      let totalPrice = 0;
-      cartDiv.innerHTML = cart.map(item => {
-        totalQty += item.qty;
-        totalPrice += item.qty * item.price;
-        return `<p>${item.name} x ${item.qty} = ₹${item.qty * item.price}
-          <button onclick="addToCartByName('${item.name}')">+</button>
-          <button onclick="removeFromCart('${item.name}')">-</button></p>`;
-      }).join("");
-      cartDiv.innerHTML += `<h3>Total Quantity: ${totalQty}</h3><h3>Total: ₹${totalPrice}</h3>`;
     }
 
     function validateForm() {
@@ -240,15 +228,35 @@
       const coy = document.getElementById("coy").value.trim();
       const force = document.getElementById("forceNumber").value.trim();
       const kpkb = document.getElementById("kpkbNumber").value.trim();
-      if (!name || !rank || !coy || !force || !kpkb) {
-        alert("⚠️ Please fill in all customer details.");
-        return false;
-      }
-      if (isNaN(force) || isNaN(kpkb) || parseInt(force) <= 0 || parseInt(kpkb) <= 0) {
-        alert("⚠️ Force Number and KPKB Number must be valid positive numbers.");
-        return false;
-      }
-      return true;
+      return name && rank && coy && force && kpkb;
+    }
+
+    function generateInvoiceHTML() {
+      const name = document.getElementById("name").value;
+      const rank = document.getElementById("rank").value;
+      const coy = document.getElementById("coy").value;
+      const force = document.getElementById("forceNumber").value;
+      const kpkb = document.getElementById("kpkbNumber").value;
+      const now = new Date();
+      let html = `
+        <h2>Invoice - CRPF 186BN</h2>
+        <p>Date: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}</p>
+        <p>Invoice No: INV-${now.getTime()}</p>
+        <hr>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Rank:</strong> ${rank}</p>
+        <p><strong>Company:</strong> ${coy}</p>
+        <p><strong>Force No:</strong> ${force}</p>
+        <p><strong>KPKB No:</strong> ${kpkb}</p>
+        <hr>
+      `;
+      let total = 0;
+      cart.forEach(c => {
+        html += `<p>${c.name} x ${c.qty} = ₹${c.qty * c.price}</p>`;
+        total += c.qty * c.price;
+      });
+      html += `<h3>Total: ₹${total}</h3>`;
+      return html;
     }
 
     function downloadInvoiceAsPDF() {
@@ -278,41 +286,7 @@
       });
     }
 
-    function generateInvoiceHTML() {
-      const name = document.getElementById("name").value || "N/A";
-      const rank = document.getElementById("rank").value || "N/A";
-      const coy = document.getElementById("coy").value || "N/A";
-      const force = document.getElementById("forceNumber").value || "N/A";
-      const kpkb = document.getElementById("kpkbNumber").value || "N/A";
-      const now = new Date();
-      const dateStr = now.toLocaleDateString("en-IN");
-      const timeStr = now.toLocaleTimeString("en-IN");
-      const invoiceNumber = "INV-" + now.getTime();
-      let content = `
-        <div style="text-align:center;">
-          <h1>CRPF 186BN KPKB CANTEEN DEMAND</h1>
-          <p>Jaipur Road, Namsai, Arunachal Pradesh</p><hr/>
-        </div>
-        <h2 style="text-align:center;">INVOICE</h2>
-        <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
-        <p><strong>Date:</strong> ${dateStr}</p>
-        <p><strong>Time:</strong> ${timeStr}</p><hr/>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Rank:</strong> ${rank}</p>
-        <p><strong>Company:</strong> ${coy}</p>
-        <p><strong>Force No:</strong> ${force}</p>
-        <p><strong>KPKB No:</strong> ${kpkb}</p><hr/>
-      `;
-      cart.forEach(item => {
-        content += `<p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}</p>`;
-      });
-      const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-      content += `<h3>Total: ₹${total.toFixed(2)}</h3>`;
-      return content;
-    }
-
     displayProducts();
-    displayCart();
   </script>
 </body>
 </html>
