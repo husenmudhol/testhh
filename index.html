@@ -63,6 +63,10 @@
       z-index: 9999;
       font-size: 20px;
       cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+    }
+    .cart-icon:hover {
+      transform: scale(1.1);
     }
     .product {
       background-color: rgba(255, 255, 255, 0.08);
@@ -73,6 +77,10 @@
       align-items: center;
       gap: 15px;
       flex-wrap: wrap;
+      transition: background-color 0.3s ease;
+    }
+    .product:hover {
+      background-color: rgba(255, 255, 255, 0.15);
     }
     .product img {
       width: 100px;
@@ -88,9 +96,11 @@
       cursor: pointer;
       font-weight: bold;
       font-size: 16px;
+      transition: background-color 0.2s ease-in-out, transform 0.1s ease;
     }
     button:hover {
       background-color: #ff8c00;
+      transform: translateY(-2px);
     }
     #customerForm {
       display: grid;
@@ -114,6 +124,14 @@
       margin: 20px;
       border-radius: 10px;
       display: none;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    h2 {
+      text-align: center;
+      background: linear-gradient(to right, #f7971e, #ffd200);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
   </style>
 </head>
@@ -121,7 +139,7 @@
   <header>
     <div>
       <h1>CRPF 186BN KPKB Canteen Demand</h1>
-      <div class="sub-heading">Jaipur Road, Namsai, Arunachal Pradesh</div>
+      <div class="sub-heading">Serving Brave Soldiers at Jaipur Road, Namsai, Arunachal Pradesh</div>
     </div>
     <div>
       <input type="text" id="searchBar" placeholder="Search products..." onkeyup="displayProducts()" />
@@ -134,99 +152,99 @@
     <input type="text" id="name" placeholder="Name" required />
     <select id="rank" required>
       <option value="">Select Rank</option>
-      <option>GO's</option><option>INSP</option><option>SI</option>
-      <option>HC</option><option>CT</option><option>TRADESMAN</option>
+      <option>GO's</option>
+      <option>INSP</option>
+      <option>SI</option>
+      <option>HC</option>
+      <option>CT</option>
+      <option>TRADESMAN</option>
     </select>
     <select id="coy" required>
       <option value="">Select Coy</option>
-      <option>A</option><option>B</option><option>C</option><option>D</option>
-      <option>E</option><option>F</option><option>G</option><option>HQ</option>
+      <option>A</option>
+      <option>B</option>
+      <option>C</option>
+      <option>D</option>
+      <option>E</option>
+      <option>F</option>
+      <option>G</option>
+      <option>HQ</option>
     </select>
-    <input type="number" id="forceNumber" placeholder="Force Number" required min="1" />
-    <input type="number" id="kpkbNumber" placeholder="KPKB Number" required min="1" />
+    <input type="number" id="forceNumber" placeholder="Force Number" required min="1" pattern="\d+" />
+    <input type="number" id="kpkbNumber" placeholder="KPKB Number" required min="1" pattern="\d+" />
   </form>
-  <h2 style="text-align:center;">Your Cart</h2>
+  <h2>Your Cart</h2>
   <div id="cart"></div>
   <div style="text-align:center; padding:30px;">
     <button onclick="if(validateForm()) downloadInvoiceAsPDF()">📄 Download Invoice as PDF</button>
     <button onclick="if(validateForm()) downloadInvoiceAsImage()">🖼️ Download Invoice as JPG</button>
   </div>
   <div id="invoiceContent"></div>
+
   <script>
-    let products = [];
+    // JavaScript for entire e-commerce website
+    const products = [
+      { name: "Tactical Boots", qty: 5, price: 1599, image: "https://via.placeholder.com/100" },
+      { name: "Energy Bars", qty: 10, price: 249, image: "https://via.placeholder.com/100" },
+      { name: "Power Bank", qty: 8, price: 1799, image: "https://via.placeholder.com/100" },
+      { name: "Backpack", qty: 6, price: 1299, image: "https://via.placeholder.com/100" },
+      { name: "Combat Gloves", qty: 12, price: 499, image: "https://via.placeholder.com/100" },
+      { name: "Rain Poncho", qty: 15, price: 799, image: "https://via.placeholder.com/100" }
+    ];
+
     let cart = [];
 
-    async function loadProducts() {
-      products = await fetch('https://raw.githubusercontent.com/husenmudhol/data-host/main/products.json')
-        .then(res => res.json())
-        .catch(() => []);
-      displayProducts();
-    }
-
     function displayProducts() {
-      const container = document.getElementById("product-list");
       const query = document.getElementById("searchBar").value.toLowerCase();
-      container.innerHTML = "";
-      products.filter(p => p.name.toLowerCase().includes(query)).forEach(product => {
-        const div = document.createElement("div");
-        div.className = "product";
-        div.innerHTML = `
+      const list = document.getElementById("product-list");
+      list.innerHTML = products.filter(p => p.name.toLowerCase().includes(query)).map(product => `
+        <div class="product">
           <img src="${product.image}" alt="${product.name}" />
           <div>
             <h3>${product.name}</h3>
             <p>Available: ${product.qty}</p>
             <p>Price: ₹${product.price}</p>
             <button onclick="addToCart('${product.name}')">Add to Cart</button>
-          </div>`;
-        container.appendChild(div);
-      });
+          </div>
+        </div>
+      `).join('');
     }
 
     function addToCart(name) {
       const product = products.find(p => p.name === name);
       if (product.qty <= 0) return alert("Out of stock!");
-      const existing = cart.find(item => item.name === name);
-      if (existing) existing.qty++;
+      const item = cart.find(i => i.name === name);
+      if (item) item.qty++;
       else cart.push({ ...product, qty: 1 });
       product.qty--;
-      updateCartCount();
-      displayProducts();
-      displayCart();
+      updateCart();
     }
 
     function removeFromCart(name) {
-      const product = products.find(p => p.name === name);
       const item = cart.find(i => i.name === name);
+      const product = products.find(p => p.name === name);
       if (!item) return;
       item.qty--;
       product.qty++;
       if (item.qty === 0) cart = cart.filter(i => i.name !== name);
-      updateCartCount();
-      displayProducts();
-      displayCart();
+      updateCart();
     }
 
-    function updateCartCount() {
-      const count = cart.reduce((sum, item) => sum + item.qty, 0);
-      document.getElementById("cartCount").textContent = count;
+    function updateCart() {
+      document.getElementById("cartCount").textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+      const cartDiv = document.getElementById("cart");
+      let html = cart.map(item => `
+        <p>${item.name} x ${item.qty} = ₹${item.qty * item.price}
+        <button onclick="addToCart('${item.name}')">+</button>
+        <button onclick="removeFromCart('${item.name}')">-</button></p>
+      `).join('');
+      const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
+      html += `<h3>Total: ₹${total}</h3>`;
+      cartDiv.innerHTML = html;
     }
 
     function scrollToCart() {
       document.getElementById("cart").scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function displayCart() {
-      const cartDiv = document.getElementById("cart");
-      let totalQty = 0;
-      let totalPrice = 0;
-      cartDiv.innerHTML = cart.map(item => {
-        totalQty += item.qty;
-        totalPrice += item.qty * item.price;
-        return `<p>${item.name} x ${item.qty} = ₹${item.qty * item.price}
-        <button onclick="addToCart('${item.name}')">+</button>
-        <button onclick="removeFromCart('${item.name}')">-</button></p>`;
-      }).join("");
-      cartDiv.innerHTML += `<h3>Total Quantity: ${totalQty}</h3><h3>Total: ₹${totalPrice}</h3>`;
     }
 
     function validateForm() {
@@ -235,42 +253,8 @@
       const coy = document.getElementById("coy").value.trim();
       const force = document.getElementById("forceNumber").value.trim();
       const kpkb = document.getElementById("kpkbNumber").value.trim();
-      if (!name || !rank || !coy || !force || !kpkb) {
-        alert("⚠️ Please fill in all customer details.");
-        return false;
-      }
+      if (!name || !rank || !coy || !force || !kpkb) return alert("Please fill all fields.") && false;
       return true;
-    }
-
-    function downloadInvoiceAsPDF() {
-      const invoice = document.getElementById("invoiceContent");
-      invoice.innerHTML = generateInvoiceHTML();
-      invoice.style.display = 'block';
-      setTimeout(() => {
-        html2canvas(invoice).then(canvas => {
-          const imgData = canvas.toDataURL("image/png");
-          const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF();
-          pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
-          pdf.save("invoice.pdf");
-          invoice.style.display = 'none';
-        });
-      }, 200);
-    }
-
-    function downloadInvoiceAsImage() {
-      const invoice = document.getElementById("invoiceContent");
-      invoice.innerHTML = generateInvoiceHTML();
-      invoice.style.display = 'block';
-      setTimeout(() => {
-        html2canvas(invoice).then(canvas => {
-          const link = document.createElement("a");
-          link.download = "invoice.jpg";
-          link.href = canvas.toDataURL("image/jpeg");
-          link.click();
-          invoice.style.display = 'none';
-        });
-      }, 200);
     }
 
     function generateInvoiceHTML() {
@@ -280,36 +264,49 @@
       const force = document.getElementById("forceNumber").value;
       const kpkb = document.getElementById("kpkbNumber").value;
       const now = new Date();
-      const dateStr = now.toLocaleDateString("en-IN");
-      const timeStr = now.toLocaleTimeString("en-IN");
-      const invoiceNumber = "INV-" + now.getTime();
-      let content = `
-        <div style="text-align:center;">
-          <h1 style="margin-bottom: 5px;">CRPF 186BN KPKB CANTEEN DEMAND</h1>
-          <p style="margin-top: 0;">Jaipur Road, Namsai, Arunachal Pradesh</p>
-          <hr/>
-        </div>
-        <h2 style="text-align:center;">INVOICE</h2>
-        <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
-        <p><strong>Date:</strong> ${dateStr}</p>
-        <p><strong>Time:</strong> ${timeStr}</p>
-        <hr/>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Rank:</strong> ${rank}</p>
-        <p><strong>Company:</strong> ${coy}</p>
-        <p><strong>Force No:</strong> ${force}</p>
-        <p><strong>KPKB No:</strong> ${kpkb}</p>
-        <hr/>
-      `;
+      const invoiceNumber = 'INV-' + now.getTime();
+      const date = now.toLocaleDateString();
+      const time = now.toLocaleTimeString();
+      let content = `<h2>INVOICE</h2><p>Invoice No: ${invoiceNumber}</p><p>Date: ${date}</p><p>Time: ${time}</p>`;
+      content += `<p><strong>Name:</strong> ${name}</p><p><strong>Rank:</strong> ${rank}</p><p><strong>Coy:</strong> ${coy}</p><p><strong>Force No:</strong> ${force}</p><p><strong>KPKB No:</strong> ${kpkb}</p><hr/>`;
       cart.forEach(item => {
-        content += `<p>${item.name} x ${item.qty} = ₹${(item.qty * item.price).toFixed(2)}</p>`;
+        content += `<p>${item.name} x ${item.qty} = ₹${item.qty * item.price}</p>`;
       });
       const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-      content += `<h3>Total: ₹${total.toFixed(2)}</h3>`;
+      content += `<h3>Total: ₹${total}</h3>`;
       return content;
     }
 
-    loadProducts();
+    function downloadInvoiceAsPDF() {
+      const invoice = document.getElementById("invoiceContent");
+      invoice.innerHTML = generateInvoiceHTML();
+      invoice.style.display = 'block';
+      html2canvas(invoice).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
+        pdf.save("invoice.pdf");
+        invoice.style.display = 'none';
+      });
+    }
+
+    function downloadInvoiceAsImage() {
+      const invoice = document.getElementById("invoiceContent");
+      invoice.innerHTML = generateInvoiceHTML();
+      invoice.style.display = 'block';
+      html2canvas(invoice).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "invoice.jpg";
+        link.href = canvas.toDataURL("image/jpeg");
+        link.click();
+        invoice.style.display = 'none';
+      });
+    }
+
+    displayProducts();
+    updateCart();
   </script>
+
 </body>
 </html>
